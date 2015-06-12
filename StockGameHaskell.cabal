@@ -57,17 +57,19 @@ executable StockGameHaskell
   -- other-extensions:    
   
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.8 && <4.9,
-                       yesod >=1.4.1.4,
-                       text >=1.2.0.4,
-                       persistent >=2.1.1.7,
-                       persistent-sqlite >=2.1.1.2,
-                       persistent-postgresql >=2.1.2.2,
-                       persistent-template >=2.1.0.1,
-                       transformers >=0.3.0.0,
-                       resourcet >=1.1.4.1,
-                       monad-logger >=0.3.13.1,
-                       time >=1.5.0.1
+  build-depends:
+                   base >=4.7 && <4.8,
+                 yesod >=1.4.1,
+                 text >=1.2,
+                 persistent >=2.1.1,
+                 persistent-sqlite >=2.1.1,
+                 persistent-postgresql >=2.1.1,
+                 persistent-template >=2.1,
+                 time >= 1.4,
+                 transformers >=0.3,
+                 resourcet >=1.1,
+                 monad-logger >=0.3.8
+                 
   -- Directories containing source files.
   -- hs-source-dirs:      
   
