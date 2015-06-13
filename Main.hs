@@ -14,6 +14,8 @@ import           Database.Persist.Postgresql
 import           Database.Persist.TH
 import           Data.Time (UTCTime, getCurrentTime)
 
+--see also https://github.com/yesodweb/yesodweb.com-content/issues/107 for issue with UTCTime
+
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Player
     name String
@@ -24,11 +26,11 @@ Item
     amount Int
     price Double
     idPlayer PlayerId
-    ts UTCTime default=CURRENT_TIME
+    ts UTCTime 
     deriving Show
 |]
 
-connStr = "host=localhost dbname=stockHaskell user=markus password=xxxx port=5432"
+connStr = "host=localhost dbname=stockHaskell user=markus password=1234 port=5432"
 
 initMe :: IO (Key Item)
 initMe = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool ->
