@@ -11,6 +11,11 @@ get url = simpleHTTP (getRequest url) >>= getResponseBody
 getSymbolsRaw :: String -> IO String
 getSymbolsRaw sym = get $ "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=" ++ sym ++ "&callback=YAHOO.Finance.SymbolSuggest.ssCallback"
 
-getSymbols :: String -> IO String
-getSymbols sym = prefix >>= \x -> return $ x =~ "YAHOO.Finance.SymbolSuggest.ssCallback\\((.*?)\\)"
-                  where prefix = getSymbolsRaw sym
+-- Note that good regex examples can be found here: https://github.com/erantapaa/haskell-regexp-examples/blob/master/RegexExamples.hs
+
+-- This is slightly complicated because of
+-- 'No instance for (RegexContext Regex (IO String) (IO String))'
+getSymbols :: String -> IO [[String]]
+getSymbols sym = prefix >>= \x -> return $ extractInner x
+                  where prefix  = getSymbolsRaw sym
+                        extractInner x = x =~ "YAHOO.Finance.SymbolSuggest.ssCallback\\((.*?)\\)" :: [[String]]
