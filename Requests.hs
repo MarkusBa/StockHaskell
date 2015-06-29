@@ -15,7 +15,8 @@ getSymbolsRaw sym = get $ "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query
 
 -- This is slightly complicated because of
 -- 'No instance for (RegexContext Regex (IO String) (IO String))'
-getSymbols :: String -> IO [[String]]
-getSymbols sym = prefix >>= \x -> return $ extractInner x
-                  where prefix  = getSymbolsRaw sym
-                        extractInner x = x =~ "YAHOO.Finance.SymbolSuggest.ssCallback\\((.*?)\\)" :: [[String]]
+getSymbols :: String -> IO String
+getSymbols sym = prefix >>= \x -> return $ justTheSecondMatch x
+                  where prefix               = getSymbolsRaw sym
+                        justTheSecondMatch x = extractInner x !! 0 !! 1
+                        extractInner x       = x =~ "YAHOO.Finance.SymbolSuggest.ssCallback\\((.*?)\\)" :: [[String]]
