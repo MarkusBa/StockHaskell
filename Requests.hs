@@ -24,13 +24,16 @@ getSymbols sym = prefix >>= \x -> return $ justTheSecondMatch x
                         extractInner x       = x =~ "YAHOO.Finance.SymbolSuggest.ssCallback\\((.*?)\\)" :: [[String]]
 
 --urlEncodeVars
---Get the stock info for the list of symbols supplied.                        
+--Get the stock info for the list of symbols supplied.
+--return $ getStocks ["\"YHOO.MX\""]
+-- "http://query.yahooapis.com/v1/public/yql?q=select%20%2A%20from%20yahoo.finance.quotes%20where%20symbol%20in%28YHOO.MX%29&env=http%3A%2F%2Fdatatables.org%2Falltables.env&format=json"
+-- Should look like this:
+-- "http://query.yahooapis.com/v1/public/yql?q=select+*+from+yahoo.finance.quotes+where+symbol+in%28%22YHOO%22%29&env=http%3A%2F%2Fdatatables.org%2Falltables.env&format=json"
+                        
 getStocks :: [String] -> IO String
 getStocks symbols = get $ "http://query.yahooapis.com/v1/public/yql?" ++ getparams
                    where envparam = ("env", "http://datatables.org/alltables.env")
                          formatparam = ("format","json")
                          joinedSymbols = intercalate "%22,%22" symbols
-                         qparam2 = ("q", "select * from yahoo.finance.quotes where symbol in(" ++ joinedSymbols ++ ")" )
                          qparam = ("q", "select+*+from+yahoo.finance.quotes+where+symbol+in%28%22" ++ joinedSymbols ++ "%22%29") 
-                         getparams2 = urlEncodeVars [qparam, envparam, formatparam]
                          getparams = "q=" ++ snd qparam ++ "&env=" ++ snd envparam ++ "&format=json"
