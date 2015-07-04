@@ -15,6 +15,7 @@ import           Database.Persist
 import           Database.Persist.Postgresql
 import           Database.Persist.TH
 import           Data.Time (UTCTime, getCurrentTime)
+import           Yesod.Core (logError)
 
 --see also https://github.com/yesodweb/yesodweb.com-content/issues/107 for issue with UTCTime
 
@@ -61,9 +62,10 @@ order symbol amount price idPlayer = runStderrLoggingT $ withPostgresqlPool conn
       case cash of
            Just Entity idMoney money -> do
              if itemAmount money >= costs
-                then update idMoney [ItemAmount =. itemAmount money - costs]
-                     stock <- selectFirst [ItemIdPlayer ==. idPlayer, ItemSymbol ==. symbol] []
-                     case stock of
+                then do
+                  update idMoney [ItemAmount =. itemAmount money - costs]
+                  stock <- selectFirst [ItemIdPlayer ==. idPlayer, ItemSymbol ==. symbol] []
+                  case stock of
                        Just Entity idStock justStock -> do
                          update idStock [ItemAmount =. amount]
                        Nothing -> do
