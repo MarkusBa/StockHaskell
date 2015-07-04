@@ -62,9 +62,9 @@ order symbol amount price idPlayer = runStderrLoggingT $ withPostgresqlPool conn
       case cash of
            Just entityMoney -> do
              let Entity idMoney money = entityMoney
-             if itemAmount money >= costs
+             if (fromIntegral $ itemAmount money) >= costs
                 then do
-                  update idMoney [ItemAmount =. itemAmount money - costs]
+                  update idMoney [ItemAmount =. round ((fromIntegral $ itemAmount money) - costs)]
                   stock <- selectFirst [ItemIdPlayer ==. idPlayer, ItemSymbol ==. symbol] []
                   case stock of
                        Just entityStock -> do
@@ -75,5 +75,7 @@ order symbol amount price idPlayer = runStderrLoggingT $ withPostgresqlPool conn
                          _ <- insert $ Item symbol amount price idPlayer time
                          return ()
                 else return ()
-           Nothing -> logError "No cash found"
+           Nothing -> do
+             $(logError) "No cash found"
+             return ()
 
