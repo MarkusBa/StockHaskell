@@ -45,10 +45,9 @@ initDb = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool ->
       idItem1 <- insert $ Item "CASH" 10000 1.0 idPlayer time
       insert $ Item "PAH3.DE" 0 0 idPlayer time
       
-getItems :: Key Player -> IO ()
+getItems :: Key Player -> IO [Entity Item]
 getItems id = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool ->
   liftIO $ do
     flip runSqlPersistMPool pool $ do
-      items <- selectList [ItemIdPlayer ==. id] []
-      liftIO $ print items
+      selectList [ItemIdPlayer ==. id] []
     
