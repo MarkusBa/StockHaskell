@@ -69,7 +69,8 @@ order symbol amount price idPlayer = runStderrLoggingT $ withPostgresqlPool conn
                   case stock of
                        Just entityStock -> do
                          let Entity idStock justStock = entityStock
-                         update idStock [ItemAmount =. amount]
+                         let newAmount = amount + itemAmount justStock    
+                         update idStock [ItemAmount =. newAmount]
                        Nothing -> do
                          time <- liftIO getCurrentTime
                          _ <- insert $ Item symbol amount price idPlayer time
