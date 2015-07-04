@@ -57,16 +57,18 @@ order :: String -> Int -> Double -> Key Player -> IO ()
 order symbol amount price idPlayer = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool ->
   liftIO $ do
     flip runSqlPersistMPool pool $ do
-      let costs = amount * price
+      let costs = fromIntegral amount * price
       cash <- selectFirst [ItemIdPlayer ==. idPlayer, ItemSymbol ==. "CASH"] []
       case cash of
-           Just Entity idMoney money -> do
+           Just entityMoney -> do
+             let Entity idMoney money = entityMoney
              if itemAmount money >= costs
                 then do
                   update idMoney [ItemAmount =. itemAmount money - costs]
                   stock <- selectFirst [ItemIdPlayer ==. idPlayer, ItemSymbol ==. symbol] []
                   case stock of
-                       Just Entity idStock justStock -> do
+                       Just entityStock -> do
+                         let Entity idStock justStock = entityStock
                          update idStock [ItemAmount =. amount]
                        Nothing -> do
                          time <- liftIO getCurrentTime
