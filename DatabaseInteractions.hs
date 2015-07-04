@@ -51,3 +51,25 @@ getItems id = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool ->
     flip runSqlPersistMPool pool $ do
       selectList [ItemIdPlayer ==. id] []
     
+
+order :: String -> Int -> Double -> Key Player -> IO ()
+order symbol amount price idPlayer = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool ->
+  liftIO $ do
+    flip runSqlPersistMPool pool $ do
+      let costs = amount * price
+      cash <- selectFirst [ItemIdPlayer ==. idPlayer, ItemSymbol ==. "CASH"] []
+      case cash of
+           Just Entity idMoney money -> do
+             if itemAmount money >= costs
+                then update idMoney [ItemAmount =. itemAmount money - costs]
+                     stock <- selectFirst [ItemIdPlayer ==. idPlayer, ItemSymbol ==. symbol] []
+                     case stock of
+                       Just Entity idStock justStock -> do
+                         update idStock [ItemAmount =. amount]
+                       Nothing -> do
+                         time <- liftIO getCurrentTime
+                         _ <- insert $ Item symbol amount price idPlayer time
+                         return ()
+                else return ()
+           Nothing -> logError "No cash found"
+
